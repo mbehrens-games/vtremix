@@ -22,11 +22,9 @@
 
 enum
 {
-  VB_MENU_TEXT_ALIGN_LEFT = 0,
-  VB_MENU_TEXT_ALIGN_LEFT_SHIFTED,
-  VB_MENU_TEXT_ALIGN_CENTER,
-  VB_MENU_TEXT_ALIGN_RIGHT,
-  VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED
+  VB_MENU_ALIGN_LEFT = 0,
+  VB_MENU_ALIGN_CENTER,
+  VB_MENU_ALIGN_RIGHT
 };
 
 #define VB_MENU_COMPUTE_PERCENT_DIGIT(index, percent, divisor)                 \
@@ -259,8 +257,8 @@ short int vb_menu_load_panel(int offset_x, int offset_y, int width, int height)
   int lighting;
   int palette;
 
-  /* make sure the width and height are valid   */
-  /* note that they are in terms of 16x16 tiles */
+  /* make sure the width and height are valid       */
+  /* the width & height are in terms of 16x16 tiles */
   if ((width < 2) || (width > GRAPHICS_PLAY_AREA_WIDTH / 16))
     return 1;
 
@@ -271,9 +269,9 @@ short int vb_menu_load_panel(int offset_x, int offset_y, int width, int height)
   corner_x = (GRAPHICS_PLAY_AREA_WIDTH - 16 * width) / 2;
   corner_y = (GRAPHICS_PLAY_AREA_HEIGHT - 16 * height) / 2;
 
-  /* note that the offset is from the screen center in 8x8 cells */
-  corner_x += 8 * offset_x;
-  corner_y += 8 * offset_y;
+  /* the offsets from the screen center are in 4x4 half-cells */
+  corner_x += 4 * offset_x;
+  corner_y += 4 * offset_y;
 
   /* make sure the panel is on the screen */
   if (corner_x + (16 * width) < 0)
@@ -406,25 +404,19 @@ short int vb_menu_load_text(int offset_x, int offset_y, int align,
   start_x = (GRAPHICS_PLAY_AREA_WIDTH / 2);
   start_y = (GRAPHICS_PLAY_AREA_HEIGHT / 2);
 
-  /* left align: the center of the first character is at the screen center        */
-  /* left shifted: the left side of the first character is at the screen center   */
-  /* center: the center of the whole string is at the screen center               */
-  /* right align: the center of the last character is at the screen center        */
-  /* right shifted: the right side of the last character is at the screen center  */
-  if (align == VB_MENU_TEXT_ALIGN_LEFT)
+  /* left:    the center of the first character is at the screen center */
+  /* center:  the center of the whole string is at the screen center    */
+  /* right:   the center of the last character is at the screen center  */
+  if (align == VB_MENU_ALIGN_LEFT)
     start_x += 0;
-  else if (align == VB_MENU_TEXT_ALIGN_LEFT_SHIFTED)
-    start_x += 4;
-  else if (align == VB_MENU_TEXT_ALIGN_CENTER)
+  else if (align == VB_MENU_ALIGN_CENTER)
     start_x -= 4 * (length - 1);
-  else if (align == VB_MENU_TEXT_ALIGN_RIGHT)
+  else if (align == VB_MENU_ALIGN_RIGHT)
     start_x -= 8 * (length - 1);
-  else if (align == VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED)
-    start_x -= 8 * (length - 1) + 4;
 
-  /* note that the offset is from the screen center in 8x8 cells */
-  start_x += 8 * offset_x;
-  start_y += 8 * offset_y;
+  /* the offsets from the screen center are in 4x4 half-cells */
+  start_x += 4 * offset_x;
+  start_y += 4 * offset_y;
 
   /* make sure the text string is on the screen */
   if (start_x + (8 * (length - 1)) + 4 < 0)
@@ -496,7 +488,8 @@ short int vb_menu_load_percent( int offset_x, int offset_y, int align,
   for (i = 0; i < 6; i++)
     buffer[i] = '\0';
 
-  /* construct string */
+  /* construct text string from percentage. note that */
+  /* the percentage is given in tenths of a percent   */
   if (percent == 0)
     strcpy(buffer, "0%");
   else if (percent == 1000)
@@ -535,7 +528,7 @@ short int vb_menu_load_percent( int offset_x, int offset_y, int align,
 /*******************************************************************************
 ** vb_menu_load_cursor()
 *******************************************************************************/
-short int vb_menu_load_cursor(int offset_x, int offset_y, int align, 
+short int vb_menu_load_cursor(int offset_x, int offset_y, 
                               int lighting, int palette)
 {
   int start_x;
@@ -557,25 +550,9 @@ short int vb_menu_load_cursor(int offset_x, int offset_y, int align,
   start_x = (GRAPHICS_PLAY_AREA_WIDTH / 2);
   start_y = (GRAPHICS_PLAY_AREA_HEIGHT / 2);
 
-  /* left align: the center of the first character is at the screen center        */
-  /* left shifted: the left side of the first character is at the screen center   */
-  /* center: the center of the whole string is at the screen center               */
-  /* right align: the center of the last character is at the screen center        */
-  /* right shifted: the right side of the last character is at the screen center  */
-  if (align == VB_MENU_TEXT_ALIGN_LEFT)
-    start_x += 0;
-  else if (align == VB_MENU_TEXT_ALIGN_LEFT_SHIFTED)
-    start_x += 4;
-  else if (align == VB_MENU_TEXT_ALIGN_CENTER)
-    start_x -= 0;
-  else if (align == VB_MENU_TEXT_ALIGN_RIGHT)
-    start_x -= 0;
-  else if (align == VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED)
-    start_x -= 4;
-
-  /* note that the offset is from the screen center in 8x8 cells */
-  start_x += 8 * offset_x;
-  start_y += 8 * offset_y;
+  /* the offsets from the screen center are in 4x4 half-cells */
+  start_x += 4 * offset_x;
+  start_y += 4 * offset_y;
 
   /* make sure the text cursor is on the screen */
   if (start_x + 4 < 0)
@@ -657,9 +634,9 @@ short int vb_menu_load_title_logo(int offset_x, int offset_y)
   center_x = GRAPHICS_PLAY_AREA_WIDTH / 2;
   center_y = GRAPHICS_PLAY_AREA_HEIGHT / 2;
 
-  /* note that the offset is from the screen center in 8x8 cells */
-  center_x += 8 * offset_x;
-  center_y += 8 * offset_y;
+  /* the offsets from the screen center are in 4x4 half-cells */
+  center_x += 4 * offset_x;
+  center_y += 4 * offset_y;
 
   /* make sure the logo is on the screen */
   if (center_x + 92 < 0)
@@ -710,6 +687,7 @@ short int vb_menu_load_page_arrow_right()
   pos_y = GRAPHICS_PLAY_AREA_HEIGHT / 2;
 
   pos_x += 140;
+  pos_y += 16;
 
   /* set texture coordinates */
   adjusted_timer_count = G_timer_count;
@@ -757,6 +735,7 @@ short int vb_menu_load_page_arrow_left()
   pos_y = GRAPHICS_PLAY_AREA_HEIGHT / 2;
 
   pos_x -= 140;
+  pos_y += 16;
 
   /* set texture coordinates */
   adjusted_timer_count = G_timer_count;
@@ -792,18 +771,22 @@ short int vb_menu_load_title_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, 1, 9, 6);
-  vb_menu_load_panel(0, 11, 14, 2);
+  /* title logo */
+  vb_menu_load_title_logo(0, -20);
 
-  vb_menu_load_title_logo(0, -10);
+  /* menu panel & text */
+  vb_menu_load_panel(0, 3, 9, 6);
 
-  vb_menu_load_text(-7, -3, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Play the Game!");
-  vb_menu_load_text(-7, -1, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Options");
-  vb_menu_load_text(-7,  1, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Help");
-  vb_menu_load_text(-7,  3, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Credits");
-  vb_menu_load_text(-7,  5, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Quit");
+  vb_menu_load_text(-13, -5, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Play the Game!");
+  vb_menu_load_text(-13, -1, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Options");
+  vb_menu_load_text(-13,  3, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Help");
+  vb_menu_load_text(-13,  7, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Credits");
+  vb_menu_load_text(-13, 11, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Quit");
 
-  vb_menu_load_text(0, 11, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 32, "2022 Michael Behrens v1.0");
+  /* signature panel & text */
+  vb_menu_load_panel(0, 22, 14, 2);
+
+  vb_menu_load_text(0, 22, VB_MENU_ALIGN_CENTER, 0, 6, 32, "2022 Michael Behrens v1.0b");
 
   G_num_saved_sprites[0] = G_num_sprites;
 
@@ -817,7 +800,7 @@ short int vb_menu_load_title_screen_cursor()
 {
   G_num_sprites = G_num_saved_sprites[0];
 
-  vb_menu_load_cursor(-8, -3 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+  vb_menu_load_cursor(-15, -5 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }
@@ -831,31 +814,44 @@ short int vb_menu_load_save_game_select_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 8, 2);
+  /* screen name panel & text */
+  vb_menu_load_panel(0, -22, 10, 2);
 
-  if (G_screen_page == 0)
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Save Game 1");
-  else if (G_screen_page == 1)
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Save Game 2");
-  else if (G_screen_page == 2)
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Save Game 3");
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 18, "Select Save Game!");
 
+  /* save game panel & text */
   if (G_save_game_percent != 0)
   {
-    vb_menu_load_panel(0, 3, 10, 7);
+    vb_menu_load_panel(0, 4, 10, 8);
 
-    vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Rooms Complete");
-    vb_menu_load_percent(0, 1, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, G_save_game_percent);
+    if (G_screen_page == 0)
+      vb_menu_load_text(0, -8, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 1");
+    else if (G_screen_page == 1)
+      vb_menu_load_text(0, -8, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 2");
+    else if (G_screen_page == 2)
+      vb_menu_load_text(0, -8, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 3");
 
-    vb_menu_load_text(-8, 4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "World Select");
-    vb_menu_load_text(-8, 6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Story Scenes");
-    vb_menu_load_text(-8, 8, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Clear Save Game");
+    vb_menu_load_text(0, -2, VB_MENU_ALIGN_CENTER, 0, 1, 16, "Rooms Complete");
+    vb_menu_load_percent(0, 2, VB_MENU_ALIGN_CENTER, 0, 0, G_save_game_percent);
+
+    vb_menu_load_text(-15, 8, VB_MENU_ALIGN_LEFT, 0, 6, 16, "World Select");
+    vb_menu_load_text(-15, 12, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Story Scenes");
+    vb_menu_load_text(-15, 16, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Clear Save Game");
   }
   else
   {
-    vb_menu_load_panel(0, 0, 10, 2);
+    vb_menu_load_panel(0, 4, 9, 5);
 
-    vb_menu_load_text(0, 0, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 16, "Start New Game!");
+    if (G_screen_page == 0)
+      vb_menu_load_text(0, -2, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 1");
+    else if (G_screen_page == 1)
+      vb_menu_load_text(0, -2, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 2");
+    else if (G_screen_page == 2)
+      vb_menu_load_text(0, -2, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 3");
+
+    vb_menu_load_text(0, 4, VB_MENU_ALIGN_CENTER, 0, 1, 16, "* New Game *");
+
+    vb_menu_load_text(-13, 10, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Start the Game!");
   }
 
   G_num_saved_sprites[0] = G_num_sprites;
@@ -871,9 +867,9 @@ short int vb_menu_load_save_game_select_screen_cursor()
   G_num_sprites = G_num_saved_sprites[0];
 
   if (G_save_game_percent != 0)
-    vb_menu_load_cursor(-9, 4 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+    vb_menu_load_cursor(-17, 8 + (4 * G_screen_choice), 0, 1);
   else
-    vb_menu_load_cursor(-8, 0, VB_MENU_TEXT_ALIGN_CENTER, 0, 1);
+    vb_menu_load_cursor(-15, 10, 0, 1);
 
   if (G_screen_page > 0)
     vb_menu_load_page_arrow_left();
@@ -893,21 +889,25 @@ short int vb_menu_load_confirm_clear_save_game_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 8, 2);
+  /* screen name panel & text */
+  vb_menu_load_panel(0, -22, 10, 2);
+
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 18, "Select Save Game!");
+
+  /* clear save game panel & text */
+  vb_menu_load_panel(0, 4, 9, 6);
 
   if (G_save_game_current_slot == 1)
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Save Game 1");
+    vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 1");
   else if (G_save_game_current_slot == 2)
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Save Game 2");
+    vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 2");
   else if (G_save_game_current_slot == 3)
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Save Game 3");
+    vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Save Game 3");
 
-  vb_menu_load_panel(0, 3, 12, 4);
+  vb_menu_load_text(0, 2, VB_MENU_ALIGN_CENTER, 0, 1, 24, "Clear Save Game?");
 
-  vb_menu_load_text(0, 1, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 24, "Clear this Save Game?");
-
-  vb_menu_load_text(-1, 3, VB_MENU_TEXT_ALIGN_LEFT, 0, 6, 16, "Yes");
-  vb_menu_load_text(-1, 5, VB_MENU_TEXT_ALIGN_LEFT, 0, 6, 16, "No");
+  vb_menu_load_text(-2,  8, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Yes");
+  vb_menu_load_text(-2, 12, VB_MENU_ALIGN_LEFT, 0, 6, 16, "No");
 
   G_num_saved_sprites[0] = G_num_sprites;
 
@@ -921,7 +921,7 @@ short int vb_menu_load_confirm_clear_save_game_screen_cursor()
 {
   G_num_sprites = G_num_saved_sprites[0];
 
-  vb_menu_load_cursor(-2, 3 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT, 0, 1);
+  vb_menu_load_cursor(-4, 8 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }
@@ -937,28 +937,31 @@ short int vb_menu_load_world_select_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 8, 2);
-  vb_menu_load_panel(0, 3, 10, 7);
+  /* screen name panel & text */
+  vb_menu_load_panel(0, -22, 8, 2);
 
-  vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Select World!");
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 16, "Select World!");
+
+  /* world names panel & text */
+  vb_menu_load_panel(0, 4, 10, 7);
 
   if (G_screen_page == 0)
-    vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Episode 1");
+    vb_menu_load_text(0, -6, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Episode 1");
   else if (G_screen_page == 1)
-    vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Episode 2");
+    vb_menu_load_text(0, -6, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Episode 2");
   else if (G_screen_page == 2)
-    vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Episode 3");
+    vb_menu_load_text(0, -6, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Episode 3");
   else if (G_screen_page == 3)
-    vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Episode 4");
+    vb_menu_load_text(0, -6, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Episode 4");
   else if (G_screen_page == 4)
-    vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Episode 5");
+    vb_menu_load_text(0, -6, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Episode 5");
 
-  vb_menu_load_text(0, 1, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 
+  vb_menu_load_text(0, 0, VB_MENU_ALIGN_CENTER, 0, 1, 
                     LEVEL_EPISODE_NAME_SIZE, &G_episode_names[G_screen_page][0]);
 
   for (k = 0; k < SCREEN_WORLD_SELECT_NUM_CHOICES; k++)
   {
-    vb_menu_load_text(-8, 4 + 2 * k, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 
+    vb_menu_load_text(-15, 6 + 4 * k, VB_MENU_ALIGN_LEFT, 0, 6, 
                       LEVEL_WORLD_NAME_SIZE, &G_world_names[SCREEN_WORLD_SELECT_NUM_CHOICES * G_screen_page + k][0]);
   }
 
@@ -974,7 +977,7 @@ short int vb_menu_load_world_select_screen_cursor()
 {
   G_num_sprites = G_num_saved_sprites[0];
 
-  vb_menu_load_cursor(-9, 4 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+  vb_menu_load_cursor(-17, 6 + (4 * G_screen_choice), 0, 1);
 
   if (G_screen_page > 0)
     vb_menu_load_page_arrow_left();
@@ -999,17 +1002,42 @@ short int vb_menu_load_world_select_screen_cursor()
 short int vb_menu_load_room_select_screen()
 {
   int k;
+  int world_name_length;
   int bound;
 
+  /* determine length of world name */
+  world_name_length = LEVEL_WORLD_NAME_SIZE;
+
+  for (k = 1; k < LEVEL_WORLD_NAME_SIZE; k++)
+  {
+    if (G_world_names[G_screen_alternate][k] == '\0')
+    {
+      world_name_length = k;
+      break;
+    }
+  }
+
+  if (world_name_length < 1)
+    world_name_length = 1;
+  else if (world_name_length > LEVEL_WORLD_NAME_SIZE)
+    world_name_length = LEVEL_WORLD_NAME_SIZE;
+
+  /* load room select */
   G_num_sprites = 0;
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 10, 2);
-  vb_menu_load_panel(0, 3, 14, 9);
+  /* world name panel & text */
+  if (world_name_length % 2 == 0)
+    vb_menu_load_panel(0, -22, (world_name_length + 2) / 2, 2);
+  else
+    vb_menu_load_panel(0, -22, (world_name_length + 3) / 2, 2);
 
-  vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 
                     LEVEL_WORLD_NAME_SIZE, &G_world_names[G_screen_alternate][0]);
+
+  /* room names panel & text */
+  vb_menu_load_panel(0, 4, 14, 9);
 
   /* compute bound for displayed room names */
   if (G_save_game_data[G_screen_alternate] <= 0)
@@ -1026,12 +1054,12 @@ short int vb_menu_load_room_select_screen()
     /* another color to denote that it has not been completed yet.  */
     if ((k == bound - 1) && (G_save_game_data[G_screen_alternate] != SAVE_GAME_ROOMS_PER_WORLD))
     {
-      vb_menu_load_text(-12, -4 + 2 * k, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 0, 
+      vb_menu_load_text(-23, -10 + 4 * k, VB_MENU_ALIGN_LEFT, 0, 0, 
                         LEVEL_ROOM_NAME_SIZE, &G_room_names[SCREEN_ROOM_SELECT_NUM_CHOICES * G_screen_alternate + k][0]);
     }
     else
     {
-      vb_menu_load_text(-12, -4 + 2 * k, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 
+      vb_menu_load_text(-23, -10 + 4 * k, VB_MENU_ALIGN_LEFT, 0, 6, 
                         LEVEL_ROOM_NAME_SIZE, &G_room_names[SCREEN_ROOM_SELECT_NUM_CHOICES * G_screen_alternate + k][0]);
     }
   }
@@ -1039,7 +1067,7 @@ short int vb_menu_load_room_select_screen()
   /* display ??? for rooms that have not been reached yet */
   for (k = bound; k < SCREEN_ROOM_SELECT_NUM_CHOICES; k++)
   {
-    vb_menu_load_text(-12, -4 + 2 * k, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, -2, 6, 
+    vb_menu_load_text(-23, -10 + 4 * k, VB_MENU_ALIGN_LEFT, -2, 6, 
                       8, "???");
   }
 
@@ -1055,7 +1083,7 @@ short int vb_menu_load_room_select_screen_cursor()
 {
   G_num_sprites = G_num_saved_sprites[0];
 
-  vb_menu_load_cursor(-13, -4 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+  vb_menu_load_cursor(-25, -10 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }
@@ -1072,10 +1100,13 @@ short int vb_menu_load_story_select_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 11, 2);
-  vb_menu_load_panel(0, 3, 12, 7);
+  /* screen name panel & text */
+  vb_menu_load_panel(0, -22, 11, 2);
 
-  vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 20, "Select Story Scene!");
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 20, "Select Story Scene!");
+
+  /* story scene names panel & text */
+  vb_menu_load_panel(0, 4, 12, 7);
 
   if (G_save_game_percent < 200)
     bound = 1;
@@ -1092,13 +1123,13 @@ short int vb_menu_load_story_select_screen()
 
   for (k = 0; k < bound; k++)
   {
-    vb_menu_load_text(-10, -2 + 2 * k, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 
+    vb_menu_load_text(-19, -6 + 4 * k, VB_MENU_ALIGN_LEFT, 0, 6, 
                       STORY_TITLE_SIZE, &G_story_scene_titles[k][0]);
   }
 
   for (k = bound; k < SCREEN_STORY_SELECT_NUM_CHOICES; k++)
   {
-    vb_menu_load_text(-10, -2 + 2 * k, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, -2, 6, 
+    vb_menu_load_text(-19, -6 + 4 * k, VB_MENU_ALIGN_LEFT, -2, 6, 
                       8, "???");
   }
 
@@ -1114,7 +1145,7 @@ short int vb_menu_load_story_select_screen_cursor()
 {
   G_num_sprites = G_num_saved_sprites[0];
 
-  vb_menu_load_cursor(-11, -2 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+  vb_menu_load_cursor(-21, -6 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }
@@ -1125,20 +1156,59 @@ short int vb_menu_load_story_select_screen_cursor()
 short int vb_menu_load_story_scene_screen()
 {
   int k;
+  int title_length;
+  int offset_y;
 
+  /* determine length of story scene title */
+  title_length = STORY_TITLE_SIZE;
+
+  for (k = 1; k < STORY_TITLE_SIZE; k++)
+  {
+    if (G_story_scene_titles[G_screen_alternate][k] == '\0')
+    {
+      title_length = k;
+      break;
+    }
+  }
+
+  if (title_length < 1)
+    title_length = 1;
+  else if (title_length > STORY_TITLE_SIZE)
+    title_length = STORY_TITLE_SIZE;
+
+  /* load story scene */
   G_num_sprites = 0;
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, 0, 17, 13);
+  /* title panel & text */
+  if (title_length % 2 == 0)
+    vb_menu_load_panel(0, -22, (title_length + 2) / 2, 2);
+  else
+    vb_menu_load_panel(0, -22, (title_length + 3) / 2, 2);
 
-  vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 
                     STORY_TITLE_SIZE, &G_story_scene_titles[G_screen_alternate][0]);
+
+  /* lines panel & text */
+  vb_menu_load_panel(0, 4, 17, 10);
+
+  offset_y = -12;
 
   for (k = 0; k < STORY_LINES_PER_SCENE; k++)
   {
-    vb_menu_load_text(0, -7 + 2 * k, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 
-                      STORY_LINE_SIZE, &G_story_scene_lines[G_screen_alternate][k][0]);
+    /* if this is not a blank line, and space is available, load the text */
+    if ((G_story_scene_lines[G_screen_alternate][k][0] != '\0') && (offset_y <= 21))
+    {
+      vb_menu_load_text(0, offset_y, VB_MENU_ALIGN_CENTER, 0, 6, 
+                        STORY_LINE_SIZE, &G_story_scene_lines[G_screen_alternate][k][0]);
+    }
+
+    /* blank lines are treated as a half-line */
+    if (G_story_scene_lines[G_screen_alternate][k][0] == '\0')
+      offset_y += 2;
+    else
+      offset_y += 4;
   }
 
   G_num_saved_sprites[0] = G_num_sprites;
@@ -1155,35 +1225,38 @@ short int vb_menu_load_options_screen()
 
   vb_menu_load_background();
 
-  /* standard options */
+  /* options (part 1) */
   if (G_screen_alternate == SCREEN_OPTIONS_ALTERNATE_STANDARD)
   {
-    vb_menu_load_panel(0, -11, 5, 2);
-    vb_menu_load_panel(0, 3, 14, 8);
+    /* screen name panel & text */
+    vb_menu_load_panel(0, -22, 5, 2);
 
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Options");
+    vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 16, "Options");
 
-    vb_menu_load_text(-12, -3, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Window Size");
-    vb_menu_load_text(-12, -1, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Fullscreen");
-    vb_menu_load_text(-12,  1, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "V Sync");
-    vb_menu_load_text(-12,  3, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Sound Volume");
+    /* options panel & text */
+    vb_menu_load_panel(0, 4, 14, 7);
 
-    vb_menu_load_text(-12,  9, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Video Options");
+    vb_menu_load_text(-23, -6, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Window Size");
+    vb_menu_load_text(-23, -2, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Fullscreen");
+    vb_menu_load_text(-23,  2, VB_MENU_ALIGN_LEFT, 0, 6, 16, "V Sync");
+    vb_menu_load_text(-23,  6, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Brightness");
+    vb_menu_load_text(-23, 10, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Upscaling Mode");
+    vb_menu_load_text(-23, 14, VB_MENU_ALIGN_LEFT, 0, 6, 16, "More Options");
   }
-  /* video options */
-  else if (G_screen_alternate == SCREEN_OPTIONS_ALTERNATE_VIDEO)
+  /* more options (part 2) */
+  else if (G_screen_alternate == SCREEN_OPTIONS_ALTERNATE_MORE)
   {
-    vb_menu_load_panel(0, -11, 8, 2);
-    vb_menu_load_panel(0, 3, 14, 9);
+    /* screen name panel & text */
+    vb_menu_load_panel(0, -22, 7, 2);
 
-    vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Video Options");
+    vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 16, "More Options");
 
-    vb_menu_load_text(-12, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Upscaling Mode");
-    vb_menu_load_text(-12, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Brightness");
-    vb_menu_load_text(-12,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Contrast");
-    vb_menu_load_text(-12,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Tint");
-    vb_menu_load_text(-12,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Saturation");
-    vb_menu_load_text(-12,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Gamma");
+    /* options panel & text */
+    vb_menu_load_panel(0, 4, 14, 6);
+
+    vb_menu_load_text(-23, -4, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Sound Volume");
+
+    vb_menu_load_text(-23, 12, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Menu Keys");
   }
 
   G_num_saved_sprites[2] = G_num_sprites;
@@ -1201,121 +1274,95 @@ short int vb_menu_load_options_screen_cursor()
   /* standard options */
   if (G_screen_alternate == SCREEN_OPTIONS_ALTERNATE_STANDARD)
   {
-    vb_menu_load_cursor(-13, -3 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+    vb_menu_load_cursor(-25, -6 + (4 * G_screen_choice), 0, 1);
 
     /* current resolution */
     if (G_graphics_resolution == GRAPHICS_RESOLUTION_480P)
-      vb_menu_load_text(13, -3, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "480p");
+      vb_menu_load_text(25, -6, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "480p");
     else if (G_graphics_resolution == GRAPHICS_RESOLUTION_720P)
-      vb_menu_load_text(13, -3, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "720p");
+      vb_menu_load_text(25, -6, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "720p");
     else if (G_graphics_resolution == GRAPHICS_RESOLUTION_768P)
-      vb_menu_load_text(13, -3, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "768p");
+      vb_menu_load_text(25, -6, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "768p");
     else if (G_graphics_resolution == GRAPHICS_RESOLUTION_1080P)
-      vb_menu_load_text(13, -3, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "1080p");
+      vb_menu_load_text(25, -6, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "1080p");
 
     /* current fullscreen setting */
     if (G_flag_window_fullscreen == 0)
-      vb_menu_load_text(13, -1, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Off");
+      vb_menu_load_text(25, -2, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "Off");
     else
-      vb_menu_load_text(13, -1, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "On");
+      vb_menu_load_text(25, -2, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "On");
 
     /* current vsync setting */
     if (G_flag_window_vsync == 0)
-      vb_menu_load_text(13,  1, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Off");
+      vb_menu_load_text(25,  2, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "Off");
     else
-      vb_menu_load_text(13,  1, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "On");
+      vb_menu_load_text(25,  2, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "On");
+
+    /* brightness slider */
+    vb_menu_load_slider(25,  6, VB_MENU_ALIGN_RIGHT, 0, 6, G_brightness_index);
+
+    /* upscaling mode */
+    if (G_upscaling_mode == VIDEO_UPSCALING_MODE_LINEAR)
+      vb_menu_load_text(25, 10, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "Linear");
+    else if (G_upscaling_mode == VIDEO_UPSCALING_MODE_PIXELS)
+      vb_menu_load_text(25, 10, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "Pixels");
+    else if (G_upscaling_mode == VIDEO_UPSCALING_MODE_SCANLINES)
+      vb_menu_load_text(25, 10, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "Scanlines");
+    else
+      vb_menu_load_text(25, 10, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "Linear");
+  }
+  /* more options */
+  else if (G_screen_alternate == SCREEN_OPTIONS_ALTERNATE_MORE)
+  {
+    vb_menu_load_cursor(-25, -4 + (4 * G_screen_choice), 0, 1);
 
     /* sound volume slider */
-    vb_menu_load_slider(13,  3, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, (G_sound_volume + 8) / 16);
+    vb_menu_load_slider(25,  -4, VB_MENU_ALIGN_RIGHT, 0, 6, (G_sound_volume + 8) / 16);
 
     /* gamepad options */
     if (G_active_gamepad != CONTROLS_ACTIVE_GAMEPAD_NONE)
     {
-      vb_menu_load_text(-12,  5, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Gamepad No.");
-      vb_menu_load_text(-12,  7, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Button Layout");
+      vb_menu_load_text(-23,  0, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Gamepad No.");
+      vb_menu_load_text(-23,  4, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Game Buttons");
+      vb_menu_load_text(-23,  8, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Menu Buttons");
 
       if (G_active_gamepad == CONTROLS_ACTIVE_GAMEPAD_READY)
-        vb_menu_load_text(13,  5, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "???");
+        vb_menu_load_text(25,  0, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "???");
       else if (G_active_gamepad == CONTROLS_ACTIVE_GAMEPAD_1)
-        vb_menu_load_text(13,  5, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "1");
+        vb_menu_load_text(25,  0, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "1");
       else if (G_active_gamepad == CONTROLS_ACTIVE_GAMEPAD_2)
-        vb_menu_load_text(13,  5, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "2");
+        vb_menu_load_text(25,  0, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "2");
       else if (G_active_gamepad == CONTROLS_ACTIVE_GAMEPAD_3)
-        vb_menu_load_text(13,  5, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "3");
+        vb_menu_load_text(25,  0, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "3");
       else if (G_active_gamepad == CONTROLS_ACTIVE_GAMEPAD_4)
-        vb_menu_load_text(13,  5, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "4");
+        vb_menu_load_text(25,  0, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "4");
 
-      if (G_button_layout == CONTROLS_BUTTON_LAYOUT_BA)
-        vb_menu_load_text(13,  7, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "BA");
-      else if (G_button_layout == CONTROLS_BUTTON_LAYOUT_SPLIT_YB_BA)
-        vb_menu_load_text(13,  7, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "YB/BA");
-      else if (G_button_layout == CONTROLS_BUTTON_LAYOUT_YB)
-        vb_menu_load_text(13,  7, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "YB");
+      if (G_game_button_layout == CONTROLS_GAME_BUTTON_LAYOUT_BA)
+        vb_menu_load_text(25,  4, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "BA");
+      else if (G_game_button_layout == CONTROLS_GAME_BUTTON_LAYOUT_YB)
+        vb_menu_load_text(25,  4, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "YB");
+
+      if (G_menu_button_layout == CONTROLS_MENU_BUTTON_LAYOUT_BA)
+        vb_menu_load_text(25,  8, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "BA");
+      else if (G_menu_button_layout == CONTROLS_MENU_BUTTON_LAYOUT_AB)
+        vb_menu_load_text(25,  8, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "AB");
     }
     else
     {
-      vb_menu_load_text(-12,  5, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, -2, 6, 16, "Gamepad No.");
-      vb_menu_load_text(-12,  7, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, -2, 6, 16, "Button Layout");
+      vb_menu_load_text(-23,  0, VB_MENU_ALIGN_LEFT, -2, 6, 16, "Gamepad No.");
+      vb_menu_load_text(-23,  4, VB_MENU_ALIGN_LEFT, -2, 6, 16, "Game Buttons");
+      vb_menu_load_text(-23,  8, VB_MENU_ALIGN_LEFT, -2, 6, 16, "Menu Buttons");
 
-      vb_menu_load_text(13,  5, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, -2, 6, 16, "n/a");
-      vb_menu_load_text(13,  7, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, -2, 6, 16, "n/a");
+      vb_menu_load_text(25,  0, VB_MENU_ALIGN_RIGHT, -2, 6, 16, "n/a");
+      vb_menu_load_text(25,  4, VB_MENU_ALIGN_RIGHT, -2, 6, 16, "n/a");
+      vb_menu_load_text(25,  8, VB_MENU_ALIGN_RIGHT, -2, 6, 16, "n/a");
     }
-  }
-  /* video options */
-  else if (G_screen_alternate == SCREEN_OPTIONS_ALTERNATE_VIDEO)
-  {
-    vb_menu_load_cursor(-13, -4 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
 
-    if (G_upscaling_mode == VIDEO_UPSCALING_MODE_LINEAR)
-      vb_menu_load_text(13, -4, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Linear");
-    else if (G_upscaling_mode == VIDEO_UPSCALING_MODE_TV)
-      vb_menu_load_text(13, -4, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "TV");
-    else
-      vb_menu_load_text(13, -4, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Linear");
-
-    /* brightness, contrast, tint, saturation, gamma sliders */
-    vb_menu_load_slider(13, -2, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, G_black_level_index);
-    vb_menu_load_slider(13,  0, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, G_white_level_index);
-    vb_menu_load_slider(13,  2, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, G_hue_index);
-    vb_menu_load_slider(13,  4, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, G_saturation_index);
-    vb_menu_load_slider(13,  6, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, G_gamma_index);
-
-    /* blur filter and phosphor mask labels and settings */
-    if (G_upscaling_mode == VIDEO_UPSCALING_MODE_TV)
-    {
-      vb_menu_load_text(-12,  8, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Blur Amount");
-      vb_menu_load_text(-12, 10, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Phosphor Mask");
-
-      if (G_blur_filter_sigma_index == 0)
-        vb_menu_load_text(13,  8, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Off");
-      else if (G_blur_filter_sigma_index == 1)
-        vb_menu_load_text(13,  8, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Low");
-      else if (G_blur_filter_sigma_index == 2)
-        vb_menu_load_text(13,  8, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Medium");
-      else if (G_blur_filter_sigma_index == 3)
-        vb_menu_load_text(13,  8, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "High");
-      else if (G_blur_filter_sigma_index == 4)
-        vb_menu_load_text(13,  8, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Highest");
-
-      if (G_mask_opacity_index == 0)
-        vb_menu_load_text(13, 10, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Off");
-      else if (G_mask_opacity_index == 1)
-        vb_menu_load_text(13, 10, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Light");
-      else if (G_mask_opacity_index == 2)
-        vb_menu_load_text(13, 10, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Medium");
-      else if (G_mask_opacity_index == 3)
-        vb_menu_load_text(13, 10, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Dark");
-      else if (G_mask_opacity_index == 4)
-        vb_menu_load_text(13, 10, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, 0, 6, 16, "Darkest");
-    }
-    else
-    {
-      vb_menu_load_text(-12,  8, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, -2, 6, 16, "Blur Amount");
-      vb_menu_load_text(-12, 10, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, -2, 6, 16, "Phosphor Mask");
-
-      vb_menu_load_text(13,  8, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, -2, 6, 16, "Off");
-      vb_menu_load_text(13, 10, VB_MENU_TEXT_ALIGN_RIGHT_SHIFTED, -2, 6, 16, "Off");
-    }
+    /* keyboard options */
+    if (G_menu_key_layout == CONTROLS_MENU_KEY_LAYOUT_ZX)
+      vb_menu_load_text(25, 12, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "ZX");
+    else if (G_menu_key_layout == CONTROLS_MENU_KEY_LAYOUT_XZ)
+      vb_menu_load_text(25, 12, VB_MENU_ALIGN_RIGHT, 0, 6, 16, "XZ");
   }
 
   return 0;
@@ -1330,79 +1377,82 @@ short int vb_menu_load_help_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 3, 2);
-  vb_menu_load_panel(0, 3, 14, 9);
+  /* screen name panel & text */
+  vb_menu_load_panel(0, -22, 3, 2);
 
-  vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Help");
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 16, "Help");
+
+  /* help panel & text */
+  vb_menu_load_panel(0, 4, 14, 9);
 
   if (G_screen_page == 0)
   {
-    vb_menu_load_text(0, -4, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Controls");
+    vb_menu_load_text(0, -10, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Controls");
 
-    vb_menu_load_text(-13, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "Arrow Keys:");
-    vb_menu_load_text( -1, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Move");
+    vb_menu_load_text(-25, -6, VB_MENU_ALIGN_LEFT, 0, 1, 32, "Arrow Keys:");
+    vb_menu_load_text( -1, -6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Move");
 
-    vb_menu_load_text(-13,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "Z:");
-    vb_menu_load_text(-10,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Bat Transform");
+    vb_menu_load_text(-25, -2, VB_MENU_ALIGN_LEFT, 0, 1, 32, "Z:");
+    vb_menu_load_text(-19, -2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Bat Transform");
 
-    vb_menu_load_text(-10,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "(Needs 1 Bat Vial)");
+    vb_menu_load_text(-19,  2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "(Needs 1 Bat Vial)");
 
-    vb_menu_load_text(-13,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "X:");
-    vb_menu_load_text(-10,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Cast Ice Spell");
+    vb_menu_load_text(-25,  6, VB_MENU_ALIGN_LEFT, 0, 1, 32, "X:");
+    vb_menu_load_text(-19,  6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Cast Ice Spell");
 
-    vb_menu_load_text(-10,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "(Needs 1 Mana Prism)");
+    vb_menu_load_text(-19, 10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "(Needs 1 Mana Prism)");
 
-    vb_menu_load_text(-13,  8, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "If Already a Bat...");
+    vb_menu_load_text(-25, 14, VB_MENU_ALIGN_LEFT, 0, 6, 32, "If Already a Bat...");
 
-    vb_menu_load_text(-13, 10, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "Z:");
-    vb_menu_load_text(-10, 10, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Vampire Transform");
+    vb_menu_load_text(-25, 18, VB_MENU_ALIGN_LEFT, 0, 1, 32, "Z:");
+    vb_menu_load_text(-19, 18, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Vampire Transform");
   }
   else if (G_screen_page == 1)
   {
-    vb_menu_load_text(-13, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Pick up all the vials");
-    vb_menu_load_text(-11, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "to open the portcullis.");
+    vb_menu_load_text(-25, -10, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, -10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Pick up all the vials");
+    vb_menu_load_text(-21, -6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "to open the portcullis.");
 
-    vb_menu_load_text(-13,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Then, walk through the");
-    vb_menu_load_text(-11,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "opened portcullis to");
-    vb_menu_load_text(-11,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "complete the room!");
+    vb_menu_load_text(-25, -2, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, -2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Then, walk through the");
+    vb_menu_load_text(-21,  2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "opened portcullis to");
+    vb_menu_load_text(-21,  6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "complete the room!");
 
-    vb_menu_load_text(-13,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Try not to get zapped");
-    vb_menu_load_text(-11,  8, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "by the pumpkins, ghosts,");
-    vb_menu_load_text(-11, 10, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "or anything else!");
+    vb_menu_load_text(-25, 10, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, 10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Try not to get zapped");
+    vb_menu_load_text(-21, 14, VB_MENU_ALIGN_LEFT, 0, 6, 32, "by the pumpkins, ghosts,");
+    vb_menu_load_text(-21, 18, VB_MENU_ALIGN_LEFT, 0, 6, 32, "or anything else!");
   }
   else if (G_screen_page == 2)
   {
-    vb_menu_load_text(-13, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "When turned into a bat,");
-    vb_menu_load_text(-11, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "you can fly over spikes,");
-    vb_menu_load_text(-11,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "water, pots, and flasks.");
+    vb_menu_load_text(-25, -10, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, -10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "When turned into a bat,");
+    vb_menu_load_text(-21, -6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "you can fly over spikes,");
+    vb_menu_load_text(-21, -2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "water, pots, and flasks.");
 
-    vb_menu_load_text(-13,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "However, the bat cannot");
-    vb_menu_load_text(-11,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "pick up vials.");
+    vb_menu_load_text(-25,  2, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21,  2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "However, the bat cannot");
+    vb_menu_load_text(-21,  6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "pick up vials.");
 
-    vb_menu_load_text(-13,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "The ice spell will turn");
-    vb_menu_load_text(-11,  8, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "most denizens into an");
-    vb_menu_load_text(-11, 10, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "ice cube! Brrr!");
+    vb_menu_load_text(-25, 10, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, 10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "The ice spell will turn");
+    vb_menu_load_text(-21, 14, VB_MENU_ALIGN_LEFT, 0, 6, 32, "most denizens into an");
+    vb_menu_load_text(-21, 18, VB_MENU_ALIGN_LEFT, 0, 6, 32, "ice cube! Brrr!");
   }
   else if (G_screen_page == 3)
   {
-    vb_menu_load_text(-13, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Some of the denizens");
-    vb_menu_load_text(-11, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "are not the same as you");
-    vb_menu_load_text(-11,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "remember!");
+    vb_menu_load_text(-25, -10, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, -10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Some of the denizens");
+    vb_menu_load_text(-21, -6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "are not the same as you");
+    vb_menu_load_text(-21, -2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "remember!");
 
-    vb_menu_load_text(-13,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "Just experiment and play");
-    vb_menu_load_text(-11,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "the game and find out!");
+    vb_menu_load_text(-25,  2, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21,  2, VB_MENU_ALIGN_LEFT, 0, 6, 32, "Just experiment and play");
+    vb_menu_load_text(-21,  6, VB_MENU_ALIGN_LEFT, 0, 6, 32, "the game and find out!");
 
-    vb_menu_load_text(-13,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1, 32, "*");
-    vb_menu_load_text(-11,  6, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 32, "And most importantly...");
-    vb_menu_load_text(0, 9, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Have fun!");
+    vb_menu_load_text(-25, 10, VB_MENU_ALIGN_LEFT, 0, 1, 32, "*");
+    vb_menu_load_text(-21, 10, VB_MENU_ALIGN_LEFT, 0, 6, 32, "And most importantly...");
+    vb_menu_load_text(0, 16, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Have fun!");
   }
 
   G_num_saved_sprites[2] = G_num_sprites;
@@ -1435,19 +1485,22 @@ short int vb_menu_load_credits_screen()
 
   vb_menu_load_background();
 
-  vb_menu_load_panel(0, -11, 5, 2);
-  vb_menu_load_panel(0, 3, 13, 9);
+  /* screen name panel & text */
+  vb_menu_load_panel(0, -22, 5, 2);
 
-  vb_menu_load_text(0, -11, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 16, "Credits");
+  vb_menu_load_text(0, -22, VB_MENU_ALIGN_CENTER, 0, 1, 16, "Credits");
 
-  vb_menu_load_text(0, -4, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 24, "Programming, Design,");
-  vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 24, "Story, Graphics,");
-  vb_menu_load_text(0, 0, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 24, "SFX, and Music by");
+  /* credits panel & text */
+  vb_menu_load_panel(0, 4, 13, 9);
 
-  vb_menu_load_text(0, 4, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Michael Behrens");
+  vb_menu_load_text(0, -10, VB_MENU_ALIGN_CENTER, 0, 6, 24, "Programming, Design,");
+  vb_menu_load_text(0, -6, VB_MENU_ALIGN_CENTER, 0, 6, 24, "Story, Graphics,");
+  vb_menu_load_text(0, -2, VB_MENU_ALIGN_CENTER, 0, 6, 24, "SFX, and Music by");
 
-  vb_menu_load_text(0, 8, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 24, "Please do not feed the");
-  vb_menu_load_text(0, 10, VB_MENU_TEXT_ALIGN_CENTER, 0, 6, 24, "vampires. They bite!");
+  vb_menu_load_text(0, 6, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Michael Behrens");
+
+  vb_menu_load_text(0, 14, VB_MENU_ALIGN_CENTER, 0, 6, 24, "Please do not feed the");
+  vb_menu_load_text(0, 18, VB_MENU_ALIGN_CENTER, 0, 6, 24, "vampires. They bite!");
 
   G_num_saved_sprites[2] = G_num_sprites;
 
@@ -1533,14 +1586,12 @@ short int vb_menu_load_room_intro_panel()
   /* draw room intro panel */
   G_num_sprites = G_num_saved_sprites[1];
 
-  /*vb_menu_load_panel(0, 0, 13, 2);*/
-
   if (length % 2 == 0)
     vb_menu_load_panel(0, 0, (length + 2) / 2, 2);
   else
     vb_menu_load_panel(0, 0, (length + 3) / 2, 2);
 
-  vb_menu_load_text(0, 0, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 
+  vb_menu_load_text(0, 0, VB_MENU_ALIGN_CENTER, 0, 0, 
                     LEVEL_ROOM_NAME_SIZE, &G_room_names[G_current_room][0]);
 
   G_num_saved_sprites[2] = G_num_sprites;
@@ -1557,7 +1608,7 @@ short int vb_menu_load_room_complete_panel()
 
   vb_menu_load_panel(0, 0, 8, 2);
 
-  vb_menu_load_text(0, 0, VB_MENU_TEXT_ALIGN_CENTER, 0, 0, 16, "Room Complete!");
+  vb_menu_load_text(0, 0, VB_MENU_ALIGN_CENTER, 0, 0, 16, "Room Complete!");
 
   G_num_saved_sprites[2] = G_num_sprites;
 
@@ -1573,11 +1624,11 @@ short int vb_menu_load_pause_panel()
 
   vb_menu_load_panel(0, 0, 8, 6);
 
-  vb_menu_load_text(-6, -4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Back to Game");
-  vb_menu_load_text(-6, -2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Retry Room");
-  vb_menu_load_text(-6,  0, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Options");
-  vb_menu_load_text(-6,  2, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Help");
-  vb_menu_load_text(-6,  4, VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 6, 16, "Room Select");
+  vb_menu_load_text(-11, -8, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Back to Game");
+  vb_menu_load_text(-11, -4, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Retry Room");
+  vb_menu_load_text(-11,  0, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Options");
+  vb_menu_load_text(-11,  4, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Help");
+  vb_menu_load_text(-11,  8, VB_MENU_ALIGN_LEFT, 0, 6, 16, "Room Select");
 
   G_num_saved_sprites[2] = G_num_sprites;
 
@@ -1591,7 +1642,7 @@ short int vb_menu_load_pause_panel_cursor()
 {
   G_num_sprites = G_num_saved_sprites[2];
 
-  vb_menu_load_cursor(-7, -4 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT_SHIFTED, 0, 1);
+  vb_menu_load_cursor(-13, -8 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }
@@ -1605,9 +1656,9 @@ short int vb_menu_load_retry_panel()
 
   vb_menu_load_panel(0, 0, 4, 4);
 
-  vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 8, "Retry?");
-  vb_menu_load_text(-1,  0, VB_MENU_TEXT_ALIGN_LEFT, 0, 6, 8, "Yes");
-  vb_menu_load_text(-1,  2, VB_MENU_TEXT_ALIGN_LEFT, 0, 6, 8, "No");
+  vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 1, 8, "Retry?");
+  vb_menu_load_text(-2,  0, VB_MENU_ALIGN_LEFT, 0, 6, 8, "Yes");
+  vb_menu_load_text(-2,  4, VB_MENU_ALIGN_LEFT, 0, 6, 8, "No");
 
   G_num_saved_sprites[2] = G_num_sprites;
 
@@ -1621,7 +1672,7 @@ short int vb_menu_load_retry_panel_cursor()
 {
   G_num_sprites = G_num_saved_sprites[2];
 
-  vb_menu_load_cursor(-2, 0 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT, 0, 1);
+  vb_menu_load_cursor(-4, 0 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }
@@ -1635,9 +1686,9 @@ short int vb_menu_load_try_again_panel()
 
   vb_menu_load_panel(0, 0, 6, 4);
 
-  vb_menu_load_text(0, -2, VB_MENU_TEXT_ALIGN_CENTER, 0, 1, 12, "Try Again?");
-  vb_menu_load_text(-1,  0, VB_MENU_TEXT_ALIGN_LEFT, 0, 6, 8, "Yes");
-  vb_menu_load_text(-1,  2, VB_MENU_TEXT_ALIGN_LEFT, 0, 6, 8, "No");
+  vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 1, 12, "Try Again?");
+  vb_menu_load_text(-2,  0, VB_MENU_ALIGN_LEFT, 0, 6, 8, "Yes");
+  vb_menu_load_text(-2,  4, VB_MENU_ALIGN_LEFT, 0, 6, 8, "No");
 
   G_num_saved_sprites[2] = G_num_sprites;
 
@@ -1651,7 +1702,7 @@ short int vb_menu_load_try_again_panel_cursor()
 {
   G_num_sprites = G_num_saved_sprites[2];
 
-  vb_menu_load_cursor(-2, 0 + (2 * G_screen_choice), VB_MENU_TEXT_ALIGN_LEFT, 0, 1);
+  vb_menu_load_cursor(-4, 0 + (4 * G_screen_choice), 0, 1);
 
   return 0;
 }

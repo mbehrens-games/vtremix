@@ -1340,6 +1340,20 @@ short int logic_freeze_thing(int index)
 
     doremi_play_sfx(SFX_INDEX_WATER_SPLASH);
   }
+  /* if this thing was frozen over spikes, it says    */
+  /* bye bye! note that we may want to also check if  */
+  /* it is over a flask or a pot in a future update.  */
+  else if (b->object == GRID_OBJECT_FLOOR_SPIKES_UP)
+  {
+    if (THING_IS_THE_PLAYER(t))
+      doremi_play_sfx(SFX_INDEX_PLAYER_SAYS_BYE_BYE);
+    else
+      doremi_play_sfx(SFX_INDEX_DENIZEN_SAYS_BYE_BYE);
+
+    t->type = THING_TYPE_PUFF_CYAN;
+    t->state = STATE_NONE;
+    t->timer_offset = 240 - G_timer_count;
+  }
   /* otherwise, change this thing into an ice cube! */
   else
   {
