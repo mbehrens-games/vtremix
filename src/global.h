@@ -13,7 +13,6 @@ extern int            G_screen_page;
 extern int            G_screen_choice;
 
 extern int            G_flag_world_complete;
-extern int            G_flag_redraw_grid_objects;
 extern int            G_flag_button_b_queued;
 extern int            G_flag_button_a_queued;
 

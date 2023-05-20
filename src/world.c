@@ -10,6 +10,7 @@
 #include "grid.h"
 #include "level.h"
 #include "state.h"
+#include "subpixel.h"
 #include "thing.h"
 #include "world.h"
 
@@ -265,8 +266,8 @@ short int world_spawn_thing(int type, int facing,
       (type == THING_TYPE_ACID_FLASK)             || 
       (type == THING_TYPE_STONE_FLASK))
   {
-    t->hx = 8 * THING_NUM_SUBPIXELS;
-    t->hy = 8 * THING_NUM_SUBPIXELS;
+    t->hx = 8 * SUBPIXEL_MANTISSA_FULL;
+    t->hy = 8 * SUBPIXEL_MANTISSA_FULL;
   }
   else if ( (type == THING_TYPE_BLOOD_VIAL)         || 
             (type == THING_TYPE_BAT_VIAL)           || 
@@ -277,13 +278,13 @@ short int world_spawn_thing(int type, int facing,
             (type == THING_TYPE_ARROW_SPINNER_CCW)  || 
             (type == THING_TYPE_ARROW_SPINNER_CW))
   {
-    t->hx = 5 * THING_NUM_SUBPIXELS;
-    t->hy = 7 * THING_NUM_SUBPIXELS;
+    t->hx = 5 * SUBPIXEL_MANTISSA_FULL;
+    t->hy = 7 * SUBPIXEL_MANTISSA_FULL;
   }
   else
   {
-    t->hx = 8 * THING_NUM_SUBPIXELS;
-    t->hy = 8 * THING_NUM_SUBPIXELS;
+    t->hx = 8 * SUBPIXEL_MANTISSA_FULL;
+    t->hy = 8 * SUBPIXEL_MANTISSA_FULL;
   }
 
   t->freeze_type = THING_TYPE_NONE;
@@ -398,8 +399,8 @@ short int world_load_things_from_tilemap()
       facing = THING_FACING_RIGHT;
 
       /* determine position */
-      pos_x = (LEVEL_ROOM_TILE_SIZE * (m + 1) + LEVEL_ROOM_TILE_SIZE_HALF) * THING_NUM_SUBPIXELS;
-      pos_y = (LEVEL_ROOM_TILE_SIZE * (n + 2) + LEVEL_ROOM_TILE_SIZE_HALF) * THING_NUM_SUBPIXELS;
+      pos_x = (LEVEL_ROOM_TILE_SIZE * (m + 1) + LEVEL_ROOM_TILE_SIZE_HALF) * SUBPIXEL_MANTISSA_FULL;
+      pos_y = (LEVEL_ROOM_TILE_SIZE * (n + 2) + LEVEL_ROOM_TILE_SIZE_HALF) * SUBPIXEL_MANTISSA_FULL;
 
       /* initialize velocity */
       vel_x = 0;

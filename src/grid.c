@@ -23,29 +23,29 @@
   /* bound corner positions */                                                 \
   if (corner_low_x < 0)                                                        \
     corner_low_x = 0;                                                          \
-  else if (corner_low_x >= WORLD_WIDTH_IN_SUBPIXELS)                           \
-    corner_low_x = WORLD_WIDTH_IN_SUBPIXELS - 1;                               \
+  else if (corner_low_x >= GRID_WIDTH_IN_SUBPIXELS)                            \
+    corner_low_x = GRID_WIDTH_IN_SUBPIXELS - 1;                                \
                                                                                \
   if (corner_high_x < 0)                                                       \
     corner_high_x = 0;                                                         \
-  else if (corner_high_x >= WORLD_WIDTH_IN_SUBPIXELS)                          \
-    corner_high_x = WORLD_WIDTH_IN_SUBPIXELS - 1;                              \
+  else if (corner_high_x >= GRID_WIDTH_IN_SUBPIXELS)                           \
+    corner_high_x = GRID_WIDTH_IN_SUBPIXELS - 1;                               \
                                                                                \
   if (corner_low_y < 0)                                                        \
     corner_low_y = 0;                                                          \
-  else if (corner_low_y >= WORLD_HEIGHT_IN_SUBPIXELS)                          \
-    corner_low_y = WORLD_HEIGHT_IN_SUBPIXELS - 1;                              \
+  else if (corner_low_y >= GRID_HEIGHT_IN_SUBPIXELS)                           \
+    corner_low_y = GRID_HEIGHT_IN_SUBPIXELS - 1;                               \
                                                                                \
   if (corner_high_y < 0)                                                       \
     corner_high_y = 0;                                                         \
-  else if (corner_high_y >= WORLD_HEIGHT_IN_SUBPIXELS)                         \
-    corner_high_y = WORLD_HEIGHT_IN_SUBPIXELS - 1;                             \
+  else if (corner_high_y >= GRID_HEIGHT_IN_SUBPIXELS)                          \
+    corner_high_y = GRID_HEIGHT_IN_SUBPIXELS - 1;                              \
                                                                                \
   /* determine boxes overlapped by this thing */                               \
-  box_low_x   = corner_low_x / (THING_NUM_SUBPIXELS * GRID_BOX_SIZE);          \
-  box_high_x  = corner_high_x / (THING_NUM_SUBPIXELS * GRID_BOX_SIZE);         \
-  box_low_y   = corner_low_y / (THING_NUM_SUBPIXELS * GRID_BOX_SIZE);          \
-  box_high_y  = corner_high_y / (THING_NUM_SUBPIXELS * GRID_BOX_SIZE);         \
+  box_low_x   = corner_low_x / GRID_BOX_SIZE_IN_SUBPIXELS;                     \
+  box_high_x  = corner_high_x / GRID_BOX_SIZE_IN_SUBPIXELS;                    \
+  box_low_y   = corner_low_y / GRID_BOX_SIZE_IN_SUBPIXELS;                     \
+  box_high_y  = corner_high_y / GRID_BOX_SIZE_IN_SUBPIXELS;                    \
                                                                                \
   /* determine number of grid boxes in each direction */                       \
   num_boxes_x = box_high_x - box_low_x + 1;                                    \
@@ -75,15 +75,15 @@
   l[0] = t1->pos_x - t1->hx;                                                   \
   h[0] = t1->pos_x + t1->hx - 1;                                               \
                                                                                \
-  l[1] = m * (THING_NUM_SUBPIXELS * GRID_BOX_SIZE);                            \
-  h[1] = ((m + 1) * (THING_NUM_SUBPIXELS * GRID_BOX_SIZE)) - 1;                \
+  l[1] = m * GRID_BOX_SIZE_IN_SUBPIXELS;                                       \
+  h[1] = ((m + 1) * GRID_BOX_SIZE_IN_SUBPIXELS) - 1;                           \
                                                                                \
   /* obtain y projections */                                                   \
   l[2] = t1->pos_y - t1->hy;                                                   \
   h[2] = t1->pos_y + t1->hy - 1;                                               \
                                                                                \
-  l[3] = n * (THING_NUM_SUBPIXELS * GRID_BOX_SIZE);                            \
-  h[3] = ((n + 1) * (THING_NUM_SUBPIXELS * GRID_BOX_SIZE)) - 1;                \
+  l[3] = n * GRID_BOX_SIZE_IN_SUBPIXELS;                                       \
+  h[3] = ((n + 1) * GRID_BOX_SIZE_IN_SUBPIXELS) - 1;                           \
                                                                                \
   /* check for collision */                                                    \
   if ((l[0] <= h[1]) && (l[1] <= h[0]) && (l[2] <= h[3]) && (l[3] <= h[2]))    \
@@ -160,10 +160,10 @@ short int grid_add_thing(int index)
   {
     for (i = 0; i < num_boxes_x; i++)
     {
-      n = (box_low_y + j) % GRID_HEIGHT;
-      m = (box_low_x + i) % GRID_WIDTH;
+      n = (box_low_y + j) % GRID_HEIGHT_IN_BOXES;
+      m = (box_low_x + i) % GRID_WIDTH_IN_BOXES;
 
-      b = &(G_collision_grid[(n * GRID_WIDTH) + m]);
+      b = &(G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m]);
 
       /* check if this thing is already in this grid box    */
       /* note that the indices should be sorted (ascending) */
@@ -255,10 +255,10 @@ short int grid_remove_thing(int index)
   {
     for (i = 0; i < num_boxes_x; i++)
     {
-      n = (box_low_y + j) % GRID_HEIGHT;
-      m = (box_low_x + i) % GRID_WIDTH;
+      n = (box_low_y + j) % GRID_HEIGHT_IN_BOXES;
+      m = (box_low_x + i) % GRID_WIDTH_IN_BOXES;
 
-      b = &(G_collision_grid[(n * GRID_WIDTH) + m]);
+      b = &(G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m]);
 
       /* find index of thing in this grid box */
       thing_i = -1;
@@ -361,8 +361,8 @@ short int grid_move_thing(int index, int mode, int amount)
     /* bound thing position */
     if (t1->pos_x - t1->hx < 0)
       t1->pos_x = t1->hx;
-    else if (t1->pos_x + t1->hx > WORLD_WIDTH_IN_SUBPIXELS)
-      t1->pos_x = WORLD_WIDTH_IN_SUBPIXELS - t1->hx;
+    else if (t1->pos_x + t1->hx > GRID_WIDTH_IN_SUBPIXELS)
+      t1->pos_x = GRID_WIDTH_IN_SUBPIXELS - t1->hx;
   }
   /* vertical movement */
   else if (mode == GRID_MOVE_THING_MODE_VERTICAL)
@@ -373,8 +373,8 @@ short int grid_move_thing(int index, int mode, int amount)
     /* bound thing position */
     if (t1->pos_y - t1->hy < 0)
       t1->pos_y = t1->hy;
-    else if (t1->pos_y + t1->hy > WORLD_HEIGHT_IN_SUBPIXELS)
-      t1->pos_y = WORLD_HEIGHT_IN_SUBPIXELS - t1->hy;
+    else if (t1->pos_y + t1->hy > GRID_HEIGHT_IN_SUBPIXELS)
+      t1->pos_y = GRID_HEIGHT_IN_SUBPIXELS - t1->hy;
   }
 
   /* determine boxes overlapped by this thing */
@@ -385,10 +385,10 @@ short int grid_move_thing(int index, int mode, int amount)
   {
     for (i = 0; i < num_boxes_x; i++)
     {
-      n = (box_low_y + j) % GRID_HEIGHT;
-      m = (box_low_x + i) % GRID_WIDTH;
+      n = (box_low_y + j) % GRID_HEIGHT_IN_BOXES;
+      m = (box_low_x + i) % GRID_WIDTH_IN_BOXES;
 
-      b = &(G_collision_grid[(n * GRID_WIDTH) + m]);
+      b = &(G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m]);
 
       for (k = 0; k < b->num_things; k++)
       {
@@ -535,10 +535,10 @@ short int grid_move_thing(int index, int mode, int amount)
   {
     for (i = 0; i < num_boxes_x; i++)
     {
-      n = (box_low_y + j) % GRID_HEIGHT;
-      m = (box_low_x + i) % GRID_WIDTH;
+      n = (box_low_y + j) % GRID_HEIGHT_IN_BOXES;
+      m = (box_low_x + i) % GRID_WIDTH_IN_BOXES;
 
-      b = &(G_collision_grid[(n * GRID_WIDTH) + m]);
+      b = &(G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m]);
 
       /* see if there is an object to collide with here */
       if (b->object == GRID_OBJECT_NONE)
@@ -599,6 +599,9 @@ short int grid_load_objects_from_tilemap()
 
   unsigned char* room_tilemap;
 
+  int tilemap_index;
+  int grid_index;
+
   int portcullis_position;
 
   /* set room tilemap */
@@ -613,67 +616,70 @@ short int grid_load_objects_from_tilemap()
   /* load walls to grid */
 
   /* left & right */
-  for (n = 0; n < GRID_HEIGHT; n++)
+  for (n = 0; n < GRID_HEIGHT_IN_BOXES; n++)
   {
-    G_collision_grid[(n * GRID_WIDTH) + 0].object = GRID_OBJECT_WALL;
-    G_collision_grid[(n * GRID_WIDTH) + 12].object = GRID_OBJECT_WALL;
+    G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + 0].object = GRID_OBJECT_WALL;
+    G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + 12].object = GRID_OBJECT_WALL;
   }
 
   /* top & bottom */
-  for (m = 1; m < GRID_WIDTH - 1; m++)
+  for (m = 1; m < GRID_WIDTH_IN_BOXES - 1; m++)
   {
-    G_collision_grid[(0 * GRID_WIDTH) + m].object = GRID_OBJECT_WALL;
-    G_collision_grid[(1 * GRID_WIDTH) + m].object = GRID_OBJECT_WALL;
-    G_collision_grid[(13 * GRID_WIDTH) + m].object = GRID_OBJECT_WALL;
+    G_collision_grid[(0 * GRID_WIDTH_IN_BOXES) + m].object = GRID_OBJECT_WALL;
+    G_collision_grid[(1 * GRID_WIDTH_IN_BOXES) + m].object = GRID_OBJECT_WALL;
+    G_collision_grid[(13 * GRID_WIDTH_IN_BOXES) + m].object = GRID_OBJECT_WALL;
   }
 
   /* load portcullis to grid */
   portcullis_position = room_tilemap[LEVEL_ROOM_NUM_TILES - 1];
 
   if ((portcullis_position >= 0) && (portcullis_position <= 10))
-    G_collision_grid[(1 * GRID_WIDTH) + portcullis_position + 1].object = GRID_OBJECT_PORTCULLIS_CLOSED;
+    G_collision_grid[(1 * GRID_WIDTH_IN_BOXES) + portcullis_position + 1].object = GRID_OBJECT_PORTCULLIS_CLOSED;
   else
-    G_collision_grid[(1 * GRID_WIDTH) + 1].object = GRID_OBJECT_PORTCULLIS_CLOSED;
+    G_collision_grid[(1 * GRID_WIDTH_IN_BOXES) + 1].object = GRID_OBJECT_PORTCULLIS_CLOSED;
 
   /* load room tilemap to grid */
   for (n = 0; n < LEVEL_ROOM_HEIGHT; n++)
   {
     for (m = 0; m < LEVEL_ROOM_WIDTH; m++)
     {
-      if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_BLOCK)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_BLOCK;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_PILLAR)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_PILLAR;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_WATER)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_WATER;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_BRIDGE_VERT)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_BRIDGE_VERT;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_BRIDGE_HORI)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_BRIDGE_HORI;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_PADLOCK)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_PADLOCK;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_SPIKE_DROPPER)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_SPIKE_DROPPER_SPAWNER;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_SPIKE_RAISER)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_SPIKE_RAISER_SPAWNER;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_ARROW_SPINNER_CCW)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_ARROW_SPINNER_CCW_SPAWNER;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_ARROW_SPINNER_CW)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_ARROW_SPINNER_CW_SPAWNER;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_ARROWS_RIGHT)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_ARROWS_RIGHT;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_ARROWS_UP)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_ARROWS_UP;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_ARROWS_LEFT)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_ARROWS_LEFT;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_ARROWS_DOWN)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_ARROWS_DOWN;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_FLOOR_SPIKES_DOWN)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_FLOOR_SPIKES_DOWN;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_FLOOR_SPIKES_UP)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_FLOOR_SPIKES_UP;
-      else if (room_tilemap[(n * LEVEL_ROOM_WIDTH) + m] == LEVEL_ROOM_TILE_AUDREY)
-        G_collision_grid[((n + 2) * GRID_WIDTH) + m + 1].object = GRID_OBJECT_AUDREY_SPAWNER;
+      tilemap_index = (n * LEVEL_ROOM_WIDTH) + m;
+      grid_index = ((n + 2) * GRID_WIDTH_IN_BOXES) + m + 1;
+
+      if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_BLOCK)
+        G_collision_grid[grid_index].object = GRID_OBJECT_BLOCK;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_PILLAR)
+        G_collision_grid[grid_index].object = GRID_OBJECT_PILLAR;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_WATER)
+        G_collision_grid[grid_index].object = GRID_OBJECT_WATER;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_BRIDGE_VERT)
+        G_collision_grid[grid_index].object = GRID_OBJECT_BRIDGE_VERT;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_BRIDGE_HORI)
+        G_collision_grid[grid_index].object = GRID_OBJECT_BRIDGE_HORI;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_PADLOCK)
+        G_collision_grid[grid_index].object = GRID_OBJECT_PADLOCK;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_SPIKE_DROPPER)
+        G_collision_grid[grid_index].object = GRID_OBJECT_SPIKE_DROPPER_SPAWNER;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_SPIKE_RAISER)
+        G_collision_grid[grid_index].object = GRID_OBJECT_SPIKE_RAISER_SPAWNER;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_ARROW_SPINNER_CCW)
+        G_collision_grid[grid_index].object = GRID_OBJECT_ARROW_SPINNER_CCW_SPAWNER;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_ARROW_SPINNER_CW)
+        G_collision_grid[grid_index].object = GRID_OBJECT_ARROW_SPINNER_CW_SPAWNER;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_ARROWS_RIGHT)
+        G_collision_grid[grid_index].object = GRID_OBJECT_ARROWS_RIGHT;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_ARROWS_UP)
+        G_collision_grid[grid_index].object = GRID_OBJECT_ARROWS_UP;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_ARROWS_LEFT)
+        G_collision_grid[grid_index].object = GRID_OBJECT_ARROWS_LEFT;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_ARROWS_DOWN)
+        G_collision_grid[grid_index].object = GRID_OBJECT_ARROWS_DOWN;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_FLOOR_SPIKES_DOWN)
+        G_collision_grid[grid_index].object = GRID_OBJECT_FLOOR_SPIKES_DOWN;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_FLOOR_SPIKES_UP)
+        G_collision_grid[grid_index].object = GRID_OBJECT_FLOOR_SPIKES_UP;
+      else if (room_tilemap[tilemap_index] == LEVEL_ROOM_TILE_AUDREY)
+        G_collision_grid[grid_index].object = GRID_OBJECT_AUDREY_SPAWNER;
     }
   }
 

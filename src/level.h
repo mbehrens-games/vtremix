@@ -5,6 +5,14 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
+/* sky tiles */
+#define LEVEL_SKY_WIDTH     10
+#define LEVEL_SKY_HEIGHT    7
+#define LEVEL_SKY_NUM_TILES (LEVEL_SKY_WIDTH * LEVEL_SKY_HEIGHT)
+
+#define LEVEL_SKY_TILE_SIZE       32
+#define LEVEL_SKY_TILE_SIZE_HALF  (LEVEL_SKY_TILE_SIZE / 2)
+
 /* room tiles */
 #define LEVEL_ROOM_TILE_BLANK               0x00
 #define LEVEL_ROOM_TILE_PLAYER_START        0x01

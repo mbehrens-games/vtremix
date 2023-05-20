@@ -5,14 +5,6 @@
 #ifndef THING_H
 #define THING_H
 
-/* thing positions, velocities, and hitbox  */
-/* sizes are stored in terms of subpixels   */
-/* there are 16 subpixels per pixel         */
-/* (in other words, these values are fixed  */
-/* point with a 4 bit mantissa).            */
-#define THING_NUM_SUBPIXELS       16
-#define THING_NUM_SUBPIXELS_HALF  (THING_NUM_SUBPIXELS / 2)
-
 enum
 {
   THING_TYPE_NONE = 0,
@@ -390,6 +382,12 @@ enum
   THING_COLLISION_FLAG_HIT_WITH_TWIN_SPELL,
   THING_COLLISION_FLAG_NEGATE_SPELLS
 };
+
+/* thing positions, velocities, and hitbox  */
+/* sizes are stored in terms of subpixels   */
+/* there are 16 subpixels per pixel         */
+/* (in other words, these values are fixed  */
+/* point with a 4 bit mantissa).            */
 
 #define THING_DENIZEN_VEL_WALK    16
 

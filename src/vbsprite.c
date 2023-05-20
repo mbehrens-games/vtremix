@@ -11,210 +11,332 @@
 #include "global.h"
 #include "graphics.h"
 #include "grid.h"
+#include "palette.h"
 #include "state.h"
+#include "subpixel.h"
 #include "texture.h"
 #include "thing.h"
 #include "vbsprite.h"
 #include "world.h"
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_NORMAL(pos_x, pos_y, z)           \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_ROTATE_90(pos_x, pos_y, z)        \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_ROTATE_180(pos_x, pos_y, z)       \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_ROTATE_270(pos_x, pos_y, z)       \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_FLIP_HORI(pos_x, pos_y, z)        \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_FLIP_VERT(pos_x, pos_y, z)        \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                       \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
                                                                                \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x + 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y - 8;               \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_FLIP_AND_ROTATE_90(pos_x, pos_y, z)  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                          \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                           \
                                                                                   \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                          \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                           \
                                                                                   \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                          \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                           \
                                                                                   \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_FLIP_AND_ROTATE_270(pos_x, pos_y, z) \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 0]   = pos_x + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 1]   = pos_y + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 2]   = z;                          \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                           \
                                                                                   \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 3]   = pos_x + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 4]   = pos_y - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 5]   = z;                          \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                           \
                                                                                   \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 6]   = pos_x - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 7]   = pos_y + 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 8]   = z;                          \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y + 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                           \
                                                                                   \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 9]   = pos_x - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 10]  = pos_y - 8;                  \
-  G_vertex_buffer_sprites[12 * G_num_sprites + 11]  = z;
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y - 8;                   \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
+
+/* for the bunny sprites (16x24), the position is lower   */
+/* than the center when the sprite is right side up, and  */
+/* higher than the center when the sprite is upside down  */
+#define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X24_NORMAL(pos_x, pos_y, z)           \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y - 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y - 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
+
+#define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X24_FLIP_HORI(pos_x, pos_y, z)        \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y - 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y - 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
+
+#define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X24_FLIP_VERT(pos_x, pos_y, z)        \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y + 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y + 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
+
+#define VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X24_FLIP_BOTH(pos_x, pos_y, z)        \
+  G_vertex_buffer_sprites[12 * sprite_index + 0]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 1]   = pos_y + 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 2]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 3]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 4]   = pos_y + 16;               \
+  G_vertex_buffer_sprites[12 * sprite_index + 5]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 6]   = pos_x + 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 7]   = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 8]   = z;                        \
+                                                                               \
+  G_vertex_buffer_sprites[12 * sprite_index + 9]   = pos_x - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 10]  = pos_y - 8;                \
+  G_vertex_buffer_sprites[12 * sprite_index + 11]  = z;
 
 #define VB_SPRITE_ADD_TO_TEXTURE_COORD_BUFFER_16X16(ss_x, ss_y)                                     \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 0] = G_texture_coord_table[2 * ss_x];          \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 1] = G_texture_coord_table[2 * (32 - ss_y)];   \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 0] = G_texture_coord_table[2 * ss_x];           \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 1] = G_texture_coord_table[2 * (32 - ss_y)];    \
                                                                                                     \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 2] = G_texture_coord_table[2 * (ss_x + 1)];    \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 3] = G_texture_coord_table[2 * (32 - ss_y)];   \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 2] = G_texture_coord_table[2 * (ss_x + 1)];     \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 3] = G_texture_coord_table[2 * (32 - ss_y)];    \
                                                                                                     \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 4] = G_texture_coord_table[2 * ss_x];          \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 5] = G_texture_coord_table[2 * (31 - ss_y)];   \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 4] = G_texture_coord_table[2 * ss_x];           \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 5] = G_texture_coord_table[2 * (31 - ss_y)];    \
                                                                                                     \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 6] = G_texture_coord_table[2 * (ss_x + 1)];    \
-  G_texture_coord_buffer_sprites[8 * G_num_sprites + 7] = G_texture_coord_table[2 * (31 - ss_y)];
+  G_texture_coord_buffer_sprites[8 * sprite_index + 6] = G_texture_coord_table[2 * (ss_x + 1)];     \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 7] = G_texture_coord_table[2 * (31 - ss_y)];
 
-#define VB_SPRITE_ADD_TO_PALETTE_COORD_BUFFER(lighting, palette)                                                \
-  G_palette_coord_buffer_sprites[4 * G_num_sprites + 0] = G_palette_coord_table[4 + (8 * palette) + lighting];  \
-                                                                                                                \
-  G_palette_coord_buffer_sprites[4 * G_num_sprites + 1] = G_palette_coord_table[4 + (8 * palette) + lighting];  \
-                                                                                                                \
-  G_palette_coord_buffer_sprites[4 * G_num_sprites + 2] = G_palette_coord_table[4 + (8 * palette) + lighting];  \
-                                                                                                                \
-  G_palette_coord_buffer_sprites[4 * G_num_sprites + 3] = G_palette_coord_table[4 + (8 * palette) + lighting];  \
+/* the cell is the top-left 8x8 cell on the 16x24 sprite */
+#define VB_SPRITE_ADD_TO_TEXTURE_COORD_BUFFER_16X24(cell_x, cell_y)                             \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 0] = G_texture_coord_table[cell_x];         \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 1] = G_texture_coord_table[64 - cell_y];    \
+                                                                                                \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 2] = G_texture_coord_table[cell_x + 2];     \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 3] = G_texture_coord_table[64 - cell_y];    \
+                                                                                                \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 4] = G_texture_coord_table[cell_x];         \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 5] = G_texture_coord_table[61 - cell_y];    \
+                                                                                                \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 6] = G_texture_coord_table[cell_x + 2];     \
+  G_texture_coord_buffer_sprites[8 * sprite_index + 7] = G_texture_coord_table[61 - cell_y];
+
+#define VB_SPRITE_ADD_TO_LIGHTING_AND_PALETTE_BUFFER(lighting, palette)                                 \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 0] = G_lighting_coord_table[8 + lighting];   \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 1] = G_palette_coord_table[palette];         \
+                                                                                                        \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 2] = G_lighting_coord_table[8 + lighting];   \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 3] = G_palette_coord_table[palette];         \
+                                                                                                        \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 4] = G_lighting_coord_table[8 + lighting];   \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 5] = G_palette_coord_table[palette];         \
+                                                                                                        \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 6] = G_lighting_coord_table[8 + lighting];   \
+  G_lighting_and_palette_buffer_sprites[8 * sprite_index + 7] = G_palette_coord_table[palette];
 
 #define VB_SPRITE_ADD_TO_ELEMENT_BUFFER()                                      \
-  G_index_buffer_sprites[6 * G_num_sprites + 0] = 4 * G_num_sprites + 0;       \
-  G_index_buffer_sprites[6 * G_num_sprites + 1] = 4 * G_num_sprites + 2;       \
-  G_index_buffer_sprites[6 * G_num_sprites + 2] = 4 * G_num_sprites + 1;       \
+  G_index_buffer_sprites[6 * sprite_index + 0] = 4 * sprite_index + 0;         \
+  G_index_buffer_sprites[6 * sprite_index + 1] = 4 * sprite_index + 2;         \
+  G_index_buffer_sprites[6 * sprite_index + 2] = 4 * sprite_index + 1;         \
                                                                                \
-  G_index_buffer_sprites[6 * G_num_sprites + 3] = 4 * G_num_sprites + 1;       \
-  G_index_buffer_sprites[6 * G_num_sprites + 4] = 4 * G_num_sprites + 2;       \
-  G_index_buffer_sprites[6 * G_num_sprites + 5] = 4 * G_num_sprites + 3;
+  G_index_buffer_sprites[6 * sprite_index + 3] = 4 * sprite_index + 1;         \
+  G_index_buffer_sprites[6 * sprite_index + 4] = 4 * sprite_index + 2;         \
+  G_index_buffer_sprites[6 * sprite_index + 5] = 4 * sprite_index + 3;
 
 #define VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS(pos_x, pos_y, z, ss_x, ss_y, lighting, palette, mode)  \
-  if (G_num_sprites < GRAPHICS_MAX_SPRITES)                                                         \
+  if (sprite_index < GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_END_INDEX)                            \
   {                                                                                                 \
     VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_##mode(pos_x, pos_y, z)                                    \
     VB_SPRITE_ADD_TO_TEXTURE_COORD_BUFFER_16X16(ss_x, ss_y)                                         \
-    VB_SPRITE_ADD_TO_PALETTE_COORD_BUFFER(lighting, palette)                                        \
+    VB_SPRITE_ADD_TO_LIGHTING_AND_PALETTE_BUFFER(lighting, palette)                                 \
     VB_SPRITE_ADD_TO_ELEMENT_BUFFER()                                                               \
                                                                                                     \
-    G_num_sprites += 1;                                                                             \
+    sprite_index += 1;                                                                              \
   }
 
 #define VB_SPRITE_ADD_THING_TO_BUFFERS(pos_x, pos_y, z, ss_x, ss_y, lighting, palette, mode)  \
-  if (G_num_sprites < GRAPHICS_MAX_SPRITES)                                                   \
+  if (sprite_index < GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_END_INDEX)                      \
   {                                                                                           \
     VB_SPRITE_ADD_TO_VERTEX_BUFFER_16X16_##mode(pos_x, pos_y, z)                              \
     VB_SPRITE_ADD_TO_TEXTURE_COORD_BUFFER_16X16(ss_x, ss_y)                                   \
-    VB_SPRITE_ADD_TO_PALETTE_COORD_BUFFER(lighting, palette)                                  \
+    VB_SPRITE_ADD_TO_LIGHTING_AND_PALETTE_BUFFER(lighting, palette)                           \
     VB_SPRITE_ADD_TO_ELEMENT_BUFFER()                                                         \
                                                                                               \
-    G_num_sprites += 1;                                                                       \
+    sprite_index += 1;                                                                        \
   }
 
+#define VB_SPRITE_UPDATE_GRID_OBJECTS_AND_THINGS_SPRITES_IN_VBOS()                                                    \
+  glBindBuffer(GL_ARRAY_BUFFER, G_vertex_buffer_id_sprites);                                                          \
+  glBufferSubData(GL_ARRAY_BUFFER,                                                                                    \
+                  GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 12 * sizeof(GLfloat),                        \
+                  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] * 12 * sizeof(GLfloat),        \
+                  &G_vertex_buffer_sprites[GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 12]);               \
+                                                                                                                      \
+  glBindBuffer(GL_ARRAY_BUFFER, G_texture_coord_buffer_id_sprites);                                                   \
+  glBufferSubData(GL_ARRAY_BUFFER,                                                                                    \
+                  GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 8 * sizeof(GLfloat),                         \
+                  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] * 8 * sizeof(GLfloat),         \
+                  &G_texture_coord_buffer_sprites[GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 8]);         \
+                                                                                                                      \
+  glBindBuffer(GL_ARRAY_BUFFER, G_lighting_and_palette_buffer_id_sprites);                                            \
+  glBufferSubData(GL_ARRAY_BUFFER,                                                                                    \
+                  GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 8 * sizeof(GLfloat),                         \
+                  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] * 8 * sizeof(GLfloat),         \
+                  &G_lighting_and_palette_buffer_sprites[GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 8]);  \
+                                                                                                                      \
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, G_index_buffer_id_sprites);                                                   \
+  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER,                                                                            \
+                  GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 6 * sizeof(unsigned short),                  \
+                  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] * 6 * sizeof(unsigned short),  \
+                  &G_index_buffer_sprites[GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX * 6]);
+
 /*******************************************************************************
-** vb_sprite_load_grid_objects()
+** vb_sprite_load_grid_objects_and_things()
 *******************************************************************************/
-short int vb_sprite_load_grid_objects()
+short int vb_sprite_load_grid_objects_and_things()
 {
+  int k;
+
   int m;
   int n;
 
   grid_box* b;
+
+  thing* t;
+
+  int sprite_index;
 
   int pos_x;
   int pos_y;
@@ -225,26 +347,32 @@ short int vb_sprite_load_grid_objects()
   int lighting;
   int palette;
 
-  unsigned int adjusted_timer_count;
+  float z;
 
-  G_num_sprites = 0;
+  unsigned int adjusted_timer_count;
+  unsigned int freeze_timer_count;
+
+  /* reset sprite vbo counts */
+  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] = 0;
 
   /* load water */
-  for (n = 1; n < GRID_HEIGHT - 1; n++)
+  sprite_index = GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX;
+
+  for (n = 1; n < GRID_HEIGHT_IN_BOXES - 1; n++)
   {
-    for (m = 1; m < GRID_WIDTH - 1; m++)
+    for (m = 1; m < GRID_WIDTH_IN_BOXES - 1; m++)
     {
-      b = &G_collision_grid[(n * GRID_WIDTH) + m];
+      b = &G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m];
 
       if (b->object == GRID_OBJECT_NONE)
         continue;
 
       /* determine position */
-      pos_x = GRID_BOX_SIZE * m + GRID_BOX_SIZE_HALF + 56;
-      pos_y = GRID_BOX_SIZE * n + GRID_BOX_SIZE_HALF;
+      pos_x = GRID_BOX_SIZE_IN_PIXELS * m + GRID_BOX_SIZE_IN_PIXELS_HALF + 56;
+      pos_y = GRID_BOX_SIZE_IN_PIXELS * n + GRID_BOX_SIZE_IN_PIXELS_HALF;
 
       /* determine adjusted timer count */
-      adjusted_timer_count = (G_timer_count + G_collision_grid[(n * GRID_WIDTH) + m].timer_offset) % 240;
+      adjusted_timer_count = (G_timer_count + G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m].timer_offset) % 240;
 
       /* determine texture coordinates, lighting, and palette */
       if ((b->object == GRID_OBJECT_WATER)                  || 
@@ -284,27 +412,27 @@ short int vb_sprite_load_grid_objects()
         continue;
 
       /* add this sprite to the buffers */
-      VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_WATER, 
+      VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_BACK_OBJECTS, 
                                             ss_x, ss_y, lighting, palette, NORMAL)
     }
   }
 
   /* load objects */
-  for (n = 0; n < GRID_HEIGHT; n++)
+  for (n = 0; n < GRID_HEIGHT_IN_BOXES; n++)
   {
-    for (m = 0; m < GRID_WIDTH; m++)
+    for (m = 0; m < GRID_WIDTH_IN_BOXES; m++)
     {
-      b = &G_collision_grid[(n * GRID_WIDTH) + m];
+      b = &G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m];
 
       if (b->object == GRID_OBJECT_NONE)
         continue;
 
       /* determine position */
-      pos_x = GRID_BOX_SIZE * m + GRID_BOX_SIZE_HALF + 56;
-      pos_y = GRID_BOX_SIZE * n + GRID_BOX_SIZE_HALF;
+      pos_x = GRID_BOX_SIZE_IN_PIXELS * m + GRID_BOX_SIZE_IN_PIXELS_HALF + 56;
+      pos_y = GRID_BOX_SIZE_IN_PIXELS * n + GRID_BOX_SIZE_IN_PIXELS_HALF;
 
       /* determine adjusted timer count */
-      adjusted_timer_count = (G_timer_count + G_collision_grid[(n * GRID_WIDTH) + m].timer_offset) % 240;
+      adjusted_timer_count = (G_timer_count + G_collision_grid[(n * GRID_WIDTH_IN_BOXES) + m].timer_offset) % 240;
 
       /* determine texture coordinates, lighting, and palette */
       if (b->object == GRID_OBJECT_BLOCK)
@@ -693,68 +821,38 @@ short int vb_sprite_load_grid_objects()
       /* add this sprite to the buffers */
       if (b->object == GRID_OBJECT_ARROWS_UP)
       {
-        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_OBJECTS, 
+        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_FRONT_OBJECTS, 
                                               ss_x, ss_y, lighting, palette, ROTATE_90)
       }
       else if (b->object == GRID_OBJECT_ARROWS_LEFT)
       {
-        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_OBJECTS, 
+        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_FRONT_OBJECTS, 
                                               ss_x, ss_y, lighting, palette, FLIP_HORI)
       }
       else if (b->object == GRID_OBJECT_ARROWS_DOWN)
       {
-        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_OBJECTS, 
+        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_FRONT_OBJECTS, 
                                               ss_x, ss_y, lighting, palette, FLIP_AND_ROTATE_90)
       }
       else
       {
-        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_OBJECTS, 
+        VB_SPRITE_ADD_GRID_OBJECT_TO_BUFFERS( pos_x, pos_y, GRAPHICS_Z_LEVEL_GRID_FRONT_OBJECTS, 
                                               ss_x, ss_y, lighting, palette, NORMAL)
       }
     }
   }
 
-  G_num_saved_sprites[0] = G_num_sprites;
-
-  return 0;
-}
-
-/*******************************************************************************
-** vb_sprite_load_things()
-*******************************************************************************/
-short int vb_sprite_load_things()
-{
-  int i;
-
-  thing* t;
-
-  int pos_x;
-  int pos_y;
-
-  int ss_x;
-  int ss_y;
-
-  int lighting;
-  int palette;
-
-  float z;
-
-  unsigned int adjusted_timer_count;
-  unsigned int freeze_timer_count;
-
-  G_num_sprites = G_num_saved_sprites[0];
-
   /* load things */
-  for (i = 0; i < WORLD_MAX_THINGS; i++)
+  for (k = 0; k < WORLD_MAX_THINGS; k++)
   {
-    t = &G_world_all_things[i];
+    t = &G_world_all_things[k];
 
     if (t->type == THING_TYPE_NONE)
       continue;
 
     /* determine position */
-    pos_x = (t->pos_x + THING_NUM_SUBPIXELS_HALF) / THING_NUM_SUBPIXELS;
-    pos_y = (t->pos_y + THING_NUM_SUBPIXELS_HALF) / THING_NUM_SUBPIXELS;
+    pos_x = (t->pos_x + SUBPIXEL_MANTISSA_HALF) / SUBPIXEL_MANTISSA_FULL;
+    pos_y = (t->pos_y + SUBPIXEL_MANTISSA_HALF) / SUBPIXEL_MANTISSA_FULL;
 
     pos_x += 56;
 
@@ -1854,7 +1952,7 @@ short int vb_sprite_load_things()
       continue;
 
     /* compute z level */
-    z = GRAPHICS_Z_LEVEL_THINGS - (GRAPHICS_Z_LEVEL_SUBDIVISION_STEP * i);
+    z = GRAPHICS_Z_LEVEL_THINGS - (GRAPHICS_Z_LEVEL_SUBDIVISION_STEP * k);
 
     /* add this sprite to the buffers */
     if ((t->type == THING_TYPE_FIRE_SPELL) || 
@@ -1919,7 +2017,23 @@ short int vb_sprite_load_things()
     }
   }
 
-  G_num_saved_sprites[1] = G_num_sprites;
+/* update grid objects & things sprite layer count */
+  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] = 
+    sprite_index - GRAPHICS_GRID_OBJECTS_AND_THINGS_SPRITES_START_INDEX;
+
+  /* update vbos */
+  VB_SPRITE_UPDATE_GRID_OBJECTS_AND_THINGS_SPRITES_IN_VBOS()
+
+  return 0;
+}
+
+/*******************************************************************************
+** vb_sprite_clear_grid_objects_and_things()
+*******************************************************************************/
+short int vb_sprite_clear_grid_objects_and_things()
+{
+  /* reset sprite vbo counts */
+  G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_GRID_OBJECTS_AND_THINGS] = 0;
 
   return 0;
 }

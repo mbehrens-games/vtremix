@@ -557,7 +557,7 @@ short int menu_player_input_button_b_pressed()
   /* room intro panel skipped */
   else if (G_game_screen == GAME_SCREEN_ROOM_INTRO_PANEL)
   {
-    vb_menu_close_panel();
+    vb_menu_clear_panels_and_overlay();
     game_loop_change_screen(GAME_SCREEN_PLAYING, SCREEN_PLAYING_ALTERNATE_STANDARD, 0, 0);
   }
   /* room complete panel skipped */
@@ -571,7 +571,7 @@ short int menu_player_input_button_b_pressed()
   {
     if (G_screen_choice == SCREEN_PAUSE_PANEL_CHOICE_BACK_TO_GAME)
     {
-      vb_menu_close_panel();
+      vb_menu_clear_panels_and_overlay();
       game_loop_change_screen(GAME_SCREEN_PLAYING, SCREEN_PLAYING_ALTERNATE_BACK_TO_GAME, 0, 0);
       doremi_play_sfx(SFX_INDEX_PAUSE);
     }
@@ -582,12 +582,12 @@ short int menu_player_input_button_b_pressed()
     }
     else if (G_screen_choice == SCREEN_PAUSE_PANEL_CHOICE_OPTIONS)
     {
-      fade_start_transition(GAME_SCREEN_OPTIONS, SCREEN_OPTIONS_ALTERNATE_STANDARD, 0, 0);
+      game_loop_change_screen(GAME_SCREEN_OPTIONS, SCREEN_OPTIONS_ALTERNATE_STANDARD, 0, 0);
       doremi_play_sfx(SFX_INDEX_MENU_SELECT);
     }
     else if (G_screen_choice == SCREEN_PAUSE_PANEL_CHOICE_HELP)
     {
-      fade_start_transition(GAME_SCREEN_HELP, 0, 0, 0);
+      game_loop_change_screen(GAME_SCREEN_HELP, 0, 0, 0);
       doremi_play_sfx(SFX_INDEX_MENU_SELECT);
     }
     else if (G_screen_choice == SCREEN_PAUSE_PANEL_CHOICE_QUIT_TO_ROOM_SELECT)
@@ -718,7 +718,7 @@ short int menu_player_input_button_a_pressed()
       if (G_last_screen == GAME_SCREEN_TITLE)
         fade_start_transition(GAME_SCREEN_TITLE, 0, 0, SCREEN_TITLE_CHOICE_OPTIONS);
       else if (G_last_screen == GAME_SCREEN_PAUSE_PANEL)
-        fade_start_transition(GAME_SCREEN_PAUSE_PANEL, 0, 0, SCREEN_PAUSE_PANEL_CHOICE_OPTIONS);
+        game_loop_change_screen(GAME_SCREEN_PAUSE_PANEL, 0, 0, SCREEN_PAUSE_PANEL_CHOICE_OPTIONS);
       else
         fade_start_transition(GAME_SCREEN_TITLE, 0, 0, SCREEN_TITLE_CHOICE_OPTIONS);
     }
@@ -736,7 +736,7 @@ short int menu_player_input_button_a_pressed()
     if (G_last_screen == GAME_SCREEN_TITLE)
       fade_start_transition(GAME_SCREEN_TITLE, 0, 0, SCREEN_TITLE_CHOICE_HELP);
     else if (G_last_screen == GAME_SCREEN_PAUSE_PANEL)
-      fade_start_transition(GAME_SCREEN_PAUSE_PANEL, 0, 0, SCREEN_PAUSE_PANEL_CHOICE_HELP);
+      game_loop_change_screen(GAME_SCREEN_PAUSE_PANEL, 0, 0, SCREEN_PAUSE_PANEL_CHOICE_HELP);
     else
       fade_start_transition(GAME_SCREEN_TITLE, 0, 0, SCREEN_TITLE_CHOICE_HELP);
 
@@ -752,7 +752,7 @@ short int menu_player_input_button_a_pressed()
   /* room intro panel skipped */
   else if (G_game_screen == GAME_SCREEN_ROOM_INTRO_PANEL)
   {
-    vb_menu_close_panel();
+    vb_menu_clear_panels_and_overlay();
     game_loop_change_screen(GAME_SCREEN_PLAYING, SCREEN_PLAYING_ALTERNATE_STANDARD, 0, 0);
   }
   /* room complete panel skipped */
@@ -765,7 +765,7 @@ short int menu_player_input_button_a_pressed()
   else if (G_game_screen == GAME_SCREEN_PAUSE_PANEL)
   {
     game_loop_change_screen(GAME_SCREEN_PLAYING, SCREEN_PLAYING_ALTERNATE_BACK_TO_GAME, 0, 0);
-    vb_menu_close_panel();
+    vb_menu_clear_panels_and_overlay();
     doremi_play_sfx(SFX_INDEX_PAUSE);
   }
   /* retry panel closed */
