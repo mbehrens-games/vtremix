@@ -1939,7 +1939,7 @@ short int vb_menu_load_try_again_overlay()
   G_sprite_layer_counts[GRAPHICS_SPRITE_LAYER_OVERLAY] = 0;
 
   /* try again text */
-  vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 1, 12, "Try Again?");
+  vb_menu_load_text(0, -4, VB_MENU_ALIGN_CENTER, 0, 0, 12, "Try Again?");
   vb_menu_load_text(-2,  0, VB_MENU_ALIGN_LEFT, 0, 6, 8, "Yes");
   vb_menu_load_text(-2,  4, VB_MENU_ALIGN_LEFT, 0, 6, 8, "No");
 
